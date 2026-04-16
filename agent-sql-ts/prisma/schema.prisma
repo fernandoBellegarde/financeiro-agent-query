@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Transacao {
+  id              Int      @id @default(autoincrement())
+  empresa         String
+  dataContaAberta DateTime
+  tipoTransacao   String   // Ex: Crédito ou Debito
+  valor           Float
+  faturaPaga      Boolean
+  createdAt       DateTime @default(now())
+}
