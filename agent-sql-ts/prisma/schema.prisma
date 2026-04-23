@@ -11,7 +11,8 @@ model Cliente {
   client_origin_id String      @id 
   nome             String
   email            String?     // O sinal de interrogação significa que é opcional
-  
+  dataContaAberta  DateTime
+
   // Isso aqui é exclusivo do Prisma! Diz que esse cliente tem uma lista de transações
   transacoes       Transacao[] 
   
@@ -20,10 +21,8 @@ model Cliente {
 
 model Transacao {
   id               Int      @id @default(autoincrement())
-  dataContaAberta  DateTime
   tipoTransacao    String   
   valor            Float
-  faturaPaga       Boolean
   
   // --- RELACIONAMENTO ---
   // 1. O campo físico no banco de dados que guarda o ID do cliente
