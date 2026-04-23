@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import cors from "@fastify/cors";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import * as dotenv from "dotenv";
-
+// Remova o import de resolve e path se não for usar mais nada deles
 dotenv.config();
 
 const fastify = Fastify({ logger: true });
@@ -37,25 +37,24 @@ fastify.post("/ask", async (request, reply) => {
   const { pergunta } = request.body as { pergunta: string };
 
   try {
-    const genAI = new GoogleGenerativeAI(
-      "AIzaSyDHqXg4VtMuZ1LADmM08tb7dfu4dc0lnqc",
-    );
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
-      Você é um assistente de banco de dados financeiro.
-      Analise a pergunta do usuário e classifique-a em uma das seguintes intenções:
-      - "listar_clientes": se ele quiser saber quais empresas ou clientes estão cadastrados.
-      - "extrato_geral": se ele quiser ver todas as transações ou movimentações.
-      - "resumo_financeiro": se ele quiser saber totais, quanto entrou (credito) ou quanto saiu (debito).
-      - "desconhecido": para qualquer outro assunto.
+  Você é um Especialista em SQL e Analista Financeiro Senior.
+  Sua tarefa é classificar a intenção do usuário para consulta no banco de dados.
 
-      Pergunta: "${pergunta}"
+  REGRAS:
+  1. Se ele perguntar "quem", "quais empresas" ou "clientes" -> intent: "listar_clientes"
+  2. Se ele perguntar "extrato", "movimentações" ou "o que aconteceu" -> intent: "extrato_geral"
+  3. Se ele perguntar "quanto", "total", "saldo" ou "resumo" -> intent: "resumo_financeiro"
+  4. Caso contrário -> intent: "desconhecido"
 
-      Responda APENAS um JSON: {"intent": "nome_da_intencao"}. 
-      Não use blocos de código ou texto extra.
-    `;
+  Pergunta do usuário: "${pergunta}"
+
+  Responda estritamente em JSON: {"intent": "..."}
+`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
