@@ -6,12 +6,31 @@ datasource db {
   provider = "sqlite"
 }
 
+model Cliente {
+  // Chave Primária
+  client_origin_id String      @id 
+  nome             String
+  email            String?     // O sinal de interrogação significa que é opcional
+  
+  // Isso aqui é exclusivo do Prisma! Diz que esse cliente tem uma lista de transações
+  transacoes       Transacao[] 
+  
+  createdAt        DateTime    @default(now())
+}
+
 model Transacao {
-  id              Int      @id @default(autoincrement())
-  empresa         String
-  dataContaAberta DateTime
-  tipoTransacao   String   // Ex: Crédito ou Debito
-  valor           Float
-  faturaPaga      Boolean
-  createdAt       DateTime @default(now())
+  id               Int      @id @default(autoincrement())
+  dataContaAberta  DateTime
+  tipoTransacao    String   
+  valor            Float
+  faturaPaga       Boolean
+  
+  // --- RELACIONAMENTO ---
+  // 1. O campo físico no banco de dados que guarda o ID do cliente
+  client_origin_id String
+  
+  // 2. A "ponte" do Prisma ensinando que esse campo aponta para a tabela Cliente
+  cliente          Cliente  @relation(fields: [client_origin_id], references: [client_origin_id])
+
+  authorizedAt     DateTime @default(now())
 }
